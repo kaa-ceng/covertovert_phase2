@@ -1,18 +1,11 @@
+
 {
-  "covert_channel_code": "Replace it with the [Code] of chosen covert channel type seen in ODTUClass.",
-  "send": {
-    "parameters": {
-      "parameter1": "p1",
-      "parameter2": 1234,
-      "log_file_name": "Example_UDPTimingInterarrivalChannelSender.log"
-    }
-  },
-  "receive": {
-    "parameters": {
-      "parameter1": "p1",
-      "parameter2": 1234,
-      "parameter3": "p3",
-      "log_file_name": "Example_UDPTimingInterarrivalChannelReceiver.log"
-    }
-  }
+  "receiver_ip": "172.18.0.3",
+  "receiver_port": 8000,
+  "sender_port": 5000,
+  "short_delay": 0.1,
+  "long_delay": 0.5,
+  "message_length": 16,
+  "log_file_send": "/app/send_log.txt",
+  "log_file_receive": "/app/receive_log.txt"
 }
