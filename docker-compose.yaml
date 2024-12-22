@@ -1,0 +1,40 @@
+services:
+  receiver:
+    build: 
+      dockerfile: docker/Dockerfile
+      context: .
+    image: covertovertreceiver:latest
+    hostname: receiver
+    container_name: receiver
+    privileged: true
+    cap_add:
+      - NET_ADMIN
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./code:/app:rw
+    networks:
+      covertovert_net:
+        ipv4_address: 172.18.0.3
+  sender:
+    build: 
+      dockerfile: docker/Dockerfile
+      context: .
+    image: covertovertsender:latest
+    hostname: sender
+    container_name: sender
+    privileged: true
+    cap_add:
+      - NET_ADMIN
+    volumes:
+      - ./code:/app:rw
+    networks:
+      covertovert_net:
+        ipv4_address: 172.18.0.2
+
+networks:
+  covertovert_net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.18.0.0/24
