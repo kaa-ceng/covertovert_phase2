@@ -1,80 +1,62 @@
-import time
-from scapy.all import IP, TCP, send, sniff
 from CovertChannelBase import CovertChannelBase
 
 class MyCovertChannel(CovertChannelBase):
-    def send(self, receiver_ip, receiver_port, sender_port, short_delay, long_delay, message_length, log_file):
+    
+    """
+    Covert Timing Channel that exploits Idle Period Between Packet Bursts using TCP [Code: CTC-IPPB-TCP]
+Responses: 0
+Limit: 1
+    - You are not allowed to change the file name and class name.
+    - You can edit the class in any way you want (e.g. adding helper functions); however, there must be a "send" and a "receive" function, the covert channel will be triggered by calling these functions.
+    """
+    def __init__(self):
+        super().__init__()
+        
+        pass
+    def send(self, log_file_name, parameter1, parameter2):
         """
-        Send a covert message using timing delays between packet bursts.
-
-        Parameters:
-        receiver_ip: The IP address of the receiver.
-        receiver_port: The port the receiver listens on.
-        sender_port: The port the sender sends from.
-        short_delay: Delay (in seconds) representing binary '0'.
-        long_delay: Delay (in seconds) representing binary '1'.
-        message_length: Length of the binary message to send.
-        log_file: Path to log the sent message.
+        - In this function, you expected to create a random message (using function/s in CovertChannelBase), and send it to the receiver container. Entire sending operations should be handled in this function.
+        - After the implementation, please rewrite this comment part to explain your code basically.
         """
-        # Generate a random binary message
-        message = ''.join(self.get_random_message(message_length))
+        "creates random binary message and then goes through each bit of this message. For each bit it generates a random number of packets and sends them to receiever."
+        "whether bit is 0 or 1 delay is changed of the burst therefore on receiver side we can understand if its 0 or 1 based on the delay"
+        binary_message = self.generate_random_binary_message_with_logging(log_file_name)
+        for bit in binary_message:
+            num_packets = self.random.randint(2, 6)
+            for i in range(num_packets):
+                packet = self.IP(dst="receive")/self.TCP(dport=8000)
+                self.send(packet)
+            if(bit == '1'):
+                self.sleep_random_time_ms(10,20)
+            elif(bit == '0'):
+                self.sleep_random_time_ms(20,50)
+        
+     
+             
+    def receive(self, parameter1, parameter2, parameter3, log_file_name):
+        packets = []
+        self.sniff(ilter=f"tcp and port 8000", stop_filter=process_packet)
+        last_time = 0
+        def process_packet(packet):
+            current_time = packet.time
+            difference = current_time - last_time
+            if(0.02<difference < 0.05):
+                "period between burst and its a 0"
+                packets.append(0)
+                last_time = current_time
+            elif(0.01<difference<0.02):
+                "period between burst and its a 1"
+                packets.append(1)
+                last_time = current_time
+            else:
+                last_time = current_time
+        binary_message= ''.join(packets)
+        packet_string = ''.join(self.convert_eight_bits_to_character(binary_message[packet]) for packet in packets)
+        self.log_message(packet_string,log_file_name)
+        
+            
+         
 
-        # Log the generated message
-        with open(log_file, "w") as log:
-            log.write(message)
 
-        print(f"Sending message: {message}")
 
-        # Send packets with appropriate delays
-        for bit in message:
-            pkt = IP(dst=receiver_ip) / TCP(dport=receiver_port, sport=sender_port)
-            send(pkt, verbose=False)
-            # Delay based on the bit value
-            time.sleep(short_delay if bit == '0' else long_delay)
-
-        # Send a termination packet (optional, for synchronization)
-        send(IP(dst=receiver_ip) / TCP(dport=receiver_port, sport=sender_port, flags="F"), verbose=False)
-        print("Message sent!")
-
-    def receive(self, sender_ip, sender_port, receiver_ip, receiver_port, short_delay, long_delay, log_file):
-        """
-        Receive a covert message by decoding timing delays between packet bursts.
-
-        Parameters:
-        sender_ip: The IP address of the sender.
-        sender_port: The port the sender sends from.
-        receiver_ip: The IP address of the receiver.
-        receiver_port: The port the receiver listens on.
-        short_delay: Threshold for '0'.
-        long_delay: Threshold for '1'.
-        log_file: Path to log the received message.
-        """
-        print("Listening for packets...")
-        message = []
-        previous_time = None
-
-        def packet_handler(pkt):
-            nonlocal previous_time
-            current_time = time.time()
-
-            if previous_time is not None:
-                # Calculate time difference between consecutive packets
-                idle_time = current_time - previous_time
-                # Decode the bit based on idle_time
-                if idle_time < (short_delay + long_delay) / 2:
-                    message.append('0')
-                else:
-                    message.append('1')
-
-            previous_time = current_time
-
-        # Sniff packets with filter for sender/receiver communication
-        sniff(filter=f"tcp and host {sender_ip} and port {sender_port}",
-              prn=packet_handler, timeout=30)
-
-        # Log the received message
-        decoded_message = ''.join(message)
-        with open(log_file, "w") as log:
-            log.write(decoded_message)
-
-        print(f"Received message: {decoded_message}")
+   
