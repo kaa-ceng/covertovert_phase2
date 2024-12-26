@@ -11,7 +11,7 @@
       "delay_0_min": 400.0,
       "delay_0_max": 500.0,
       "delay_1_min": 800.0,
-      "delay_1_max": 1000.0
+      "delay_1_max": 900.0
     }
   },
   "receive": {
@@ -21,9 +21,9 @@
       "dst_ip": "172.18.0.3",
       "port": 8000,
       "threshold_0_min": 0.4,
-      "threshold_0_max": 0.5,
+      "threshold_0_max": 0.8,
       "threshold_1_min": 0.8,
-      "threshold_1_max": 1.0
+      "threshold_1_max": 1.2
     }
   }
 }
