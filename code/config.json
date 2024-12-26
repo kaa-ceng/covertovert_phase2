@@ -17,10 +17,10 @@
     "parameters": {
       "log_file_name": "receiver.log",
       "port": 8000,
-      "threshold_0_min": 0.02,
-      "threshold_0_max": 0.05,
-      "threshold_1_min": 0.01,
-      "threshold_1_max": 0.02
+      "threshold_0_min": 0.07,
+      "threshold_0_max": 0.09,
+      "threshold_1_min": 0.10,
+      "threshold_1_max": 0.12
     }
   }
 }
