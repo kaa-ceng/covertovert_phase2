@@ -1,6 +1,6 @@
 from CovertChannelBase import CovertChannelBase
 import random
-from scapy.all import IP, TCP
+from scapy.all import IP, TCP, sniff
 
 class MyCovertChannel(CovertChannelBase):
     
@@ -38,23 +38,23 @@ Limit: 1
         
      
              
-    def receive(self, parameter1, parameter2, parameter3, log_file_name):
+    def receive(self, log_file_name, port, threshold_0_min, threshold_0_max, threshold_1_min, threshold_1_max):
         packets = []
-        self.sniff(ilter=f"tcp and port 8000", stop_filter=process_packet)
         last_time = 0
+        
         def process_packet(packet):
             current_time = packet.time
             difference = current_time - last_time
-            if(0.02<difference < 0.05):
-                "period between burst and its a 0"
+            if threshold_0_min < difference < threshold_0_max:
                 packets.append(0)
                 last_time = current_time
-            elif(0.01<difference<0.02):
-                "period between burst and its a 1"
+            elif threshold_1_min < difference < threshold_1_max:
                 packets.append(1)
                 last_time = current_time
             else:
                 last_time = current_time
+
+        sniff(filter=f"tcp and port {port}", prn=process_packet)
         binary_message= ''.join(packets)
         packet_string = ''.join(self.convert_eight_bits_to_character(binary_message[packet]) for packet in packets)
         self.log_message(packet_string,log_file_name)
