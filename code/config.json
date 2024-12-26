@@ -3,24 +3,27 @@
   "send": {
     "parameters": {
       "log_file_name": "sender.log",
+      "src_ip": "172.18.0.2",
       "dst_ip": "172.18.0.3",
       "dst_port": 8000,
       "min_packets": 2,
       "max_packets": 6,
-      "delay_0_min": 10.0,
-      "delay_0_max": 20.0,
-      "delay_1_min": 20.0,
-      "delay_1_max": 50.0
+      "delay_0_min": 400.0,
+      "delay_0_max": 500.0,
+      "delay_1_min": 800.0,
+      "delay_1_max": 1000.0
     }
   },
   "receive": {
     "parameters": {
       "log_file_name": "receiver.log",
+      "src_ip": "172.18.0.2",
+      "dst_ip": "172.18.0.3",
       "port": 8000,
-      "threshold_0_min": 0.01,
-      "threshold_0_max": 0.02,
-      "threshold_1_min": 0.02,
-      "threshold_1_max": 0.05
+      "threshold_0_min": 0.4,
+      "threshold_0_max": 0.5,
+      "threshold_1_min": 0.8,
+      "threshold_1_max": 1.0
     }
   }
 }

@@ -1,39 +1,35 @@
-from CovertChannelBase import CovertChannelBase
-import random, time
+import time
+import random
 from scapy.all import IP, TCP, sniff
+from CovertChannelBase import CovertChannelBase
 
 class MyCovertChannel(CovertChannelBase):
-    
     """
     Covert Timing Channel that exploits Idle Period Between Packet Bursts using TCP [Code: CTC-IPPB-TCP]
-Responses: 0
-Limit: 1
     - You are not allowed to change the file name and class name.
     - You can edit the class in any way you want (e.g. adding helper functions); however, there must be a "send" and a "receive" function, the covert channel will be triggered by calling these functions.
     """
     def __init__(self):
         super().__init__()
         self.random = random
-        
-    def send(self, log_file_name, dst_ip, dst_port, min_packets, max_packets, delay_1_min, delay_1_max, delay_0_min, delay_0_max):
+
+    def send(self, log_file_name, src_ip, dst_ip, dst_port, min_packets, max_packets, delay_1_min, delay_1_max, delay_0_min, delay_0_max):
+        global send_time  # Use the global send_time variable
         """
-        - In this function, you expected to create a random message (using function/s in CovertChannelBase), and send it to the receiver container. Entire sending operations should be handled in this function.
-        - After the implementation, please rewrite this comment part to explain your code basically.
+        Creates a random binary message and then goes through each bit of this message. For each bit, it generates a random number of packets and sends them to the receiver.
+        Whether the bit is 0 or 1, the delay is changed between the bursts. Therefore, on the receiver side, we can understand if it's 0 or 1 based on the delay.
         """
-        "creates random binary message and then goes through each bit of this message. For each bit it generates a random number of packets and sends them to receiver."
-        "whether bit is 0 or 1 delay is changed of the burst therefore on receiver side we can understand if its 0 or 1 based on the delay"
-        
         binary_message = self.generate_random_binary_message_with_logging(log_file_name)
         for bit in binary_message:
             num_packets = self.random.randint(min_packets, max_packets)
             print(f"number of packets in burst: {num_packets}")
             for i in range(num_packets):
                 start_time = time.time()
-                packet = IP(dst=dst_ip)/TCP(dport=dst_port)
-                super().send(packet)  #  send method from CovertChannelBase
+                packet = IP(src=src_ip, dst=dst_ip)/TCP(dport=dst_port)
+                super().send(packet)  # Use the send method from CovertChannelBase
                 end_time = time.time()
-                send_time = (end_time - start_time) * 1000 
-                print(f"Packet {i} sent in {(end_time - start_time)*1000:.5f} miliseconds")
+                send_time = (end_time - start_time) 
+                print(f"Packet {i} sent in {send_time:.5f} seconds")
             if bit == '1':
                 delay = self.sleep_random_time_ms(delay_1_min, delay_1_max)
                 print(f"Bit is 1, sleeping for {delay:.2f} milliseconds")
@@ -41,17 +37,20 @@ Limit: 1
                 delay = self.sleep_random_time_ms(delay_0_min, delay_0_max)
                 print(f"Bit is 0, sleeping for {delay:.2f} milliseconds")
 
-
-    def receive(self, log_file_name, port, threshold_0_min, threshold_0_max, threshold_1_min, threshold_1_max):
+    def receive(self, log_file_name, src_ip, dst_ip, port, threshold_0_min, threshold_0_max, threshold_1_min, threshold_1_max):
         packets = []
         last_time = 0
 
         def process_packet(packet):
             nonlocal last_time
-            if packet.haslayer(TCP) and packet[IP].src == "172.18.0.2" and packet[IP].dst == "172.18.0.3":
-                current_time = (packet.time)
-                difference = (current_time - last_time) + send_time
-                print(f"Packet time: {current_time}, Last time: {last_time}, Difference: {difference} seconds")  # Debugging line to check timing differences
+            if packet.haslayer(TCP) and packet[IP].src == src_ip and packet[IP].dst == dst_ip and packet[TCP].dport == port:
+                current_time = packet.time
+                if last_time == 0:
+                    last_time = current_time
+                    print(f"Packet time: {current_time:.5f}")  # Debugging line to check the first packet time
+                    return
+                difference = current_time - last_time  # Convert send_time to seconds
+                print(f"Packet time: {current_time:.5f}, Last time: {last_time:.5f}, Difference: {difference:.5f} seconds")  # Debugging line to check timing differences
                 if threshold_0_min < difference < threshold_0_max:
                     packets.append('0')
                     last_time = current_time
@@ -64,9 +63,10 @@ Limit: 1
                     last_time = current_time
 
         sniff(
-                iface="eth0",
-                filter="tcp port 8000",
-                prn=process_packet)
+            iface="eth0",
+            filter=f"tcp and src host {src_ip} and dst host {dst_ip} and dst port {port}",
+            prn=process_packet
+        )
         
         binary_message = ''.join(packets)
         print(f"Binary message: {binary_message}")  # Debugging line to check the binary message
