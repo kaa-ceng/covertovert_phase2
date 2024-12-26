@@ -2,9 +2,15 @@
   "covert_channel_code": "CTC-IPPB-TCP",
   "send": {
     "parameters": {
-      "parameter1": "p1",
-      "parameter2": 1234,
-      "log_file_name": "sender.log"
+      "log_file_name": "sender.log",
+      "dst_ip": "172.18.0.3",
+      "dst_port": 8000,
+      "min_packets": 2,
+      "max_packets": 6,
+      "delay_1_min": 10,
+      "delay_1_max": 20,
+      "delay_0_min": 20,
+      "delay_0_max": 50
     }
   },
   "receive": {
