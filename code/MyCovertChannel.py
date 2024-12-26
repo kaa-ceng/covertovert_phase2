@@ -30,7 +30,7 @@ Limit: 1
             num_packets = self.random.randint(min_packets, max_packets)
             for i in range(num_packets):
                 packet = IP(dst=dst_ip)/TCP(dport=dst_port)
-                send(packet)
+                super().send(packet)
             if bit == '1':
                 self.sleep_random_time_ms(delay_1_min, delay_1_max)
             elif bit == '0':

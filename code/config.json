@@ -15,10 +15,12 @@
   },
   "receive": {
     "parameters": {
-      "parameter1": "p1",
-      "parameter2": 1234,
-      "parameter3": "p3",
-      "log_file_name": "receiver.log"
+      "log_file_name": "receiver.log",
+      "port": 8000,
+      "threshold_0_min": 0.02,
+      "threshold_0_max": 0.05,
+      "threshold_1_min": 0.01,
+      "threshold_1_max": 0.02
     }
   }
 }
