@@ -1,5 +1,5 @@
 from CovertChannelBase import CovertChannelBase
-import random
+import random, time
 from scapy.all import IP, TCP, sniff
 
 class MyCovertChannel(CovertChannelBase):
@@ -26,15 +26,22 @@ Limit: 1
         binary_message = self.generate_random_binary_message_with_logging(log_file_name)
         for bit in binary_message:
             num_packets = self.random.randint(min_packets, max_packets)
+            print(f"number of packets in burst: {num_packets}")
             for i in range(num_packets):
+                star_time = time.time()
                 packet = IP(dst=dst_ip)/TCP(dport=dst_port)
-                super().send(packet)  # Use the send method from CovertChannelBase
+                super().send(packet)  #  send method from CovertChannelBase
+                end_time = time.time()
+                print(f"Packet {i} sent in {(end_time - star_time)*1000:.5f} miliseconds")
             if bit == '1':
-                self.sleep_random_time_ms(delay_1_min, delay_1_max)
+                delay = self.sleep_random_time_ms(delay_1_min, delay_1_max)
+                print(f"Bit is 1, sleeping for {delay:.2f} milliseconds")
             elif bit == '0':
-                self.sleep_random_time_ms(delay_0_min, delay_0_max)
+                delay = self.sleep_random_time_ms(delay_0_min, delay_0_max)
+                print(f"Bit is 0, sleeping for {delay:.2f} milliseconds")
 
-    def receive(self, log_file_name, port, threshold_0_min=0.07, threshold_0_max=0.09, threshold_1_min=0.10, threshold_1_max=0.12):
+
+    def receive(self, log_file_name, port, threshold_0_min, threshold_0_max, threshold_1_min, threshold_1_max):
         packets = []
         last_time = 0
 
@@ -55,7 +62,11 @@ Limit: 1
                 else:
                     last_time = current_time
 
-        sniff(filter=f"tcp and port {port}", prn=process_packet, store=0)
+        sniff(
+                iface="eth0",
+                filter="tcp port 8000",
+                prn=process_packet)
+        
         binary_message = ''.join(packets)
         print(f"Binary message: {binary_message}")  # Debugging line to check the binary message
         packet_string = ''.join(self.convert_eight_bits_to_character(binary_message[i:i+8]) for i in range(0, len(binary_message), 8))

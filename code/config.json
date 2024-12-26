@@ -7,20 +7,20 @@
       "dst_port": 8000,
       "min_packets": 2,
       "max_packets": 6,
-      "delay_1_min": 10,
-      "delay_1_max": 20,
-      "delay_0_min": 20,
-      "delay_0_max": 50
+      "delay_0_min": 10.0,
+      "delay_0_max": 20.0,
+      "delay_1_min": 20.0,
+      "delay_1_max": 50.0
     }
   },
   "receive": {
     "parameters": {
       "log_file_name": "receiver.log",
       "port": 8000,
-      "threshold_0_min": 0.07,
-      "threshold_0_max": 0.09,
-      "threshold_1_min": 0.10,
-      "threshold_1_max": 0.12
+      "threshold_0_min": 0.01,
+      "threshold_0_max": 0.02,
+      "threshold_1_min": 0.02,
+      "threshold_1_max": 0.05
     }
   }
 }

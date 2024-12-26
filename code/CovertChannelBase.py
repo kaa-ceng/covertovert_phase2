@@ -69,7 +69,10 @@ class CovertChannelBase:
         """
         - For the covert timing channels, you can use this function if you want to wait random time in miliseconds between start and end.
         """
-        time.sleep(random.uniform(start, end) / 1000)
+        """time.sleep(random.uniform(start, end) / 1000)"""
+        sleep_time = random.uniform(start, end) / 1000.0
+        time.sleep(sleep_time)
+        return sleep_time * 1000
     def convert_eight_bits_to_character(self, eight_bits):
         """
         - It can be used to convert the received eight bits to a character in the receiving operation.
