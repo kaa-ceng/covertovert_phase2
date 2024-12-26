@@ -35,8 +35,6 @@ class MyCovertChannel(CovertChannelBase):
             elif bit == '0':
                 delay = self.sleep_random_time_ms(delay_0_min, delay_0_max)
                 print(f"Bit is 0, sleeping for {delay:.2f} milliseconds")
-        packet = IP(src=src_ip, dst=dst_ip)/TCP(dport=dst_port)
-        super().send(packet)
 
     def receive(self, log_file_name, src_ip, dst_ip, port, threshold_0_min, threshold_0_max, threshold_1_min, threshold_1_max):
         packets = []
@@ -62,6 +60,8 @@ class MyCovertChannel(CovertChannelBase):
                     print("Appended 1")  # Debugging line to check if '1' is appended
                 else:
                     last_time = current_time
+                    
+                   
 
         sniff(
             iface="eth0",

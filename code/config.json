@@ -20,7 +20,7 @@
       "src_ip": "172.18.0.2",
       "dst_ip": "172.18.0.3",
       "port": 8000,
-      "threshold_0_min": 0.25,
+      "threshold_0_min": 0.27,
       "threshold_0_max": 0.51,
       "threshold_1_min": 0.52,
       "threshold_1_max": 0.76
