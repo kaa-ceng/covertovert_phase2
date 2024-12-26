@@ -1,4 +1,6 @@
 from CovertChannelBase import CovertChannelBase
+import random
+from scapy.all import IP, TCP
 
 class MyCovertChannel(CovertChannelBase):
     
@@ -11,6 +13,7 @@ Limit: 1
     """
     def __init__(self):
         super().__init__()
+        self.random = random
         
         pass
     def send(self, log_file_name, parameter1, parameter2):
@@ -24,7 +27,7 @@ Limit: 1
         for bit in binary_message:
             num_packets = self.random.randint(2, 6)
             for i in range(num_packets):
-                packet = self.IP(dst="receive")/self.TCP(dport=8000)
+                packet = IP(dst="172.18.0.3")/TCP(dport=8000)
                 self.send(packet)
             if(bit == '1'):
                 self.sleep_random_time_ms(10,20)
