@@ -8,10 +8,10 @@
       "dst_port": 8000,
       "min_packets": 2,
       "max_packets": 6,
-      "delay_0_min": 400.0,
-      "delay_0_max": 500.0,
-      "delay_1_min": 800.0,
-      "delay_1_max": 900.0
+      "delay_0_min": 250.0,
+      "delay_0_max": 260.0,
+      "delay_1_min": 500.0,
+      "delay_1_max": 510.0
     }
   },
   "receive": {
@@ -20,10 +20,10 @@
       "src_ip": "172.18.0.2",
       "dst_ip": "172.18.0.3",
       "port": 8000,
-      "threshold_0_min": 0.4,
-      "threshold_0_max": 0.8,
-      "threshold_1_min": 0.8,
-      "threshold_1_max": 1.2
+      "threshold_0_min": 0.25,
+      "threshold_0_max": 0.51,
+      "threshold_1_min": 0.52,
+      "threshold_1_max": 0.76
     }
   }
 }

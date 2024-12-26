@@ -37,19 +37,19 @@ class MyCovertChannel(CovertChannelBase):
                 delay = self.sleep_random_time_ms(delay_0_min, delay_0_max)
                 print(f"Bit is 0, sleeping for {delay:.2f} milliseconds")
 
-    def receive(self, log_file_name, src_ip, dst_ip, port, threshold_0_min, threshold_0_max, threshold_1_min, threshold_1_max):
+    def receive(self, log_file_name, src_ip, src_port, dst_ip, port, threshold_0_min, threshold_0_max, threshold_1_min, threshold_1_max):
         packets = []
         last_time = 0
 
         def process_packet(packet):
             nonlocal last_time
-            if packet.haslayer(TCP) and packet[IP].src == src_ip and packet[IP].dst == dst_ip and packet[TCP].dport == port:
+            if packet.haslayer(TCP) and packet[IP].src == src_ip and packet[IP].dst == dst_ip and packet[TCP].sport == src_port and packet[TCP].dport == port:
                 current_time = packet.time
                 if last_time == 0:
                     last_time = current_time
                     print(f"Packet time: {current_time:.5f}")  # Debugging line to check the first packet time
                     return
-                difference = current_time - last_time  # Convert send_time to seconds
+                difference = (current_time - last_time) - (send_time / 1000)  # Convert send_time to seconds
                 print(f"Packet time: {current_time:.5f}, Last time: {last_time:.5f}, Difference: {difference:.5f} seconds")  # Debugging line to check timing differences
                 if threshold_0_min < difference < threshold_0_max:
                     packets.append('0')
@@ -62,13 +62,20 @@ class MyCovertChannel(CovertChannelBase):
                 else:
                     last_time = current_time
 
-        sniff(
-            iface="eth0",
-            filter=f"tcp and src host {src_ip} and dst host {dst_ip} and dst port {port}",
-            prn=process_packet
-        )
-        
-        binary_message = ''.join(packets)
-        print(f"Binary message: {binary_message}")  # Debugging line to check the binary message
+        # Capture packets until the stopping character is received
+        while True:
+            sniff(
+                iface="eth0",
+                filter=f"tcp and src host {src_ip} and src port {src_port} and dst host {dst_ip} and dst port {port}",
+                prn=process_packet,
+                store=0,
+                count=1
+            )
+            binary_message = ''.join(packets)
+            print(f"Binary message: {binary_message}")  # Debugging line to check the binary message
+            if '.' in binary_message:
+                print("Stopping character received. Stopping packet capture.")
+                break
+
         packet_string = ''.join(self.convert_eight_bits_to_character(binary_message[i:i+8]) for i in range(0, len(binary_message), 8))
         self.log_message(packet_string, log_file_name)
