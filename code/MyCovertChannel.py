@@ -28,11 +28,12 @@ Limit: 1
             num_packets = self.random.randint(min_packets, max_packets)
             print(f"number of packets in burst: {num_packets}")
             for i in range(num_packets):
-                star_time = time.time()
+                start_time = time.time()
                 packet = IP(dst=dst_ip)/TCP(dport=dst_port)
                 super().send(packet)  #  send method from CovertChannelBase
                 end_time = time.time()
-                print(f"Packet {i} sent in {(end_time - star_time)*1000:.5f} miliseconds")
+                send_time = (end_time - start_time) * 1000 
+                print(f"Packet {i} sent in {(end_time - start_time)*1000:.5f} miliseconds")
             if bit == '1':
                 delay = self.sleep_random_time_ms(delay_1_min, delay_1_max)
                 print(f"Bit is 1, sleeping for {delay:.2f} milliseconds")
@@ -48,9 +49,9 @@ Limit: 1
         def process_packet(packet):
             nonlocal last_time
             if packet.haslayer(TCP) and packet[IP].src == "172.18.0.2" and packet[IP].dst == "172.18.0.3":
-                current_time = packet.time
-                difference = current_time - last_time
-                print(f"Packet time: {current_time}, Last time: {last_time}, Difference: {difference}")  # Debugging line to check timing differences
+                current_time = (packet.time)
+                difference = (current_time - last_time) + send_time
+                print(f"Packet time: {current_time}, Last time: {last_time}, Difference: {difference} seconds")  # Debugging line to check timing differences
                 if threshold_0_min < difference < threshold_0_max:
                     packets.append('0')
                     last_time = current_time
