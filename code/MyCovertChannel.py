@@ -15,7 +15,8 @@ class MyCovertChannel(CovertChannelBase):
         self.is_dot = False
 
     def send(self, log_file_name, src_ip, dst_ip, dst_port, min_packets, max_packets, delay_0_min, delay_1_min):
-        binary_message = self.generate_random_binary_message_with_logging(log_file_name)
+        binary_message = self.generate_random_binary_message_with_logging(log_file_name, min_length=16, max_length=16)
+        start_time = time.time()
         for bit in binary_message:
             num_packets = self.random.randint(min_packets, max_packets)
             for _ in range(num_packets):
@@ -25,8 +26,14 @@ class MyCovertChannel(CovertChannelBase):
                 time.sleep(delay_1_min)
             elif bit == '0':
                 time.sleep(delay_0_min)
+        end_time = time.time()  # End the timer
         packet = IP(src=src_ip, dst=dst_ip)/TCP(dport=dst_port)
         super().send(packet) 
+
+        # Calculate covert channel capacity
+        time_taken = end_time - start_time
+        capacity_bps = 128 / time_taken
+        print(f"Covert channel capacity: {capacity_bps:.2f} bits per second")
 
     def receive(self, log_file_name, src_ip, dst_ip, port, threshold_0_min, threshold_0_max):
         packets = []
