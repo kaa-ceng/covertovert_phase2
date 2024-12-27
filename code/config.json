@@ -7,7 +7,7 @@
       "dst_ip": "172.18.0.3",
       "dst_port": 8000,
       "min_packets": 1,
-      "max_packets": 3,
+      "max_packets": 2,
       "delay_0_min": 0.4,
       "delay_1_min": 0.8
     }

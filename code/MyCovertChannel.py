@@ -12,7 +12,7 @@ class MyCovertChannel(CovertChannelBase):
     def __init__(self):
         super().__init__()
         self.random = random
-        self.is_dot = False
+        """self.is_dot = False"""
 
     def send(self, log_file_name, src_ip, dst_ip, dst_port, min_packets, max_packets, delay_0_min, delay_1_min):
         binary_message = self.generate_random_binary_message_with_logging(log_file_name, min_length=16, max_length=16)
@@ -27,23 +27,25 @@ class MyCovertChannel(CovertChannelBase):
             elif bit == '0':
                 time.sleep(delay_0_min)
         end_time = time.time()  # End the timer
-        packet = IP(src=src_ip, dst=dst_ip)/TCP(dport=dst_port)
-        super().send(packet) 
 
         # Calculate covert channel capacity
         time_taken = end_time - start_time
         capacity_bps = 128 / time_taken
         print(f"Covert channel capacity: {capacity_bps:.2f} bits per second")
 
+        """packet = IP(src=src_ip, dst=dst_ip)/TCP(dport=dst_port)
+        super().send(packet) """
+
+
     def receive(self, log_file_name, src_ip, dst_ip, port, threshold_0_min, threshold_0_max):
         packets = []
         last_time = 0
-        self.is_dot = False
-        i = 1
+        """self.is_dot = False
+        i = 1"""
         
         def process_packet(packet):
-            nonlocal last_time, i
-            packet_string1 = ''
+            nonlocal last_time
+            """packet_string1 = ''"""
 
             current_time = packet.time
             if last_time == 0:
@@ -51,28 +53,30 @@ class MyCovertChannel(CovertChannelBase):
                 return
             difference = current_time - last_time
             print(f"Difference: {difference} seconds") 
+
             if threshold_0_min < difference < threshold_0_max:
                 packets.append('0')
                 print("Appended 0")  # Debugging line to check if '0' is appended
-            elif threshold_0_max < difference:
+            elif threshold_0_max <= difference :
                 packets.append('1')
                 print("Appended 1")  # Debugging line to check if '1' is appended
             last_time = current_time
 
-            if(len(packets)== 8*i):
+            """if(len(packets)== 8*i):
                     
                 message = ''.join(packets[8*(i-1):8*i])
                 packet_string1 = ''.join(self.convert_eight_bits_to_character(message))
                 i = i+1
             if(packet_string1== '.'):
-                self.is_dot = True
+                self.is_dot = True"""
 
         sniff(
             iface="eth0",
             filter=f"tcp and src host {src_ip} and dst host {dst_ip} and dst port {port}",
-            prn=process_packet,
-            stop_filter= lambda packet: self.is_dot
+            prn=process_packet
+            
         )
+        """stop_filter= lambda packet: self.is_dot"""
         
 
         binary_message = ''.join(packets)
